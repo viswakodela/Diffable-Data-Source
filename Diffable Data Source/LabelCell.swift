@@ -22,7 +22,7 @@ class LabelCell: UICollectionViewCell {
     
     // MARK:- Helper Methods
     private func configureuserNameLabel() {
-        backgroundColor = .systemRed
+        backgroundColor = .systemBackground
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         
