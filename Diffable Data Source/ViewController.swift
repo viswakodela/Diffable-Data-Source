@@ -15,13 +15,12 @@ class ViewController: UIViewController {
     
     
     // MARK:- Properties
-    
     private var users = [User]()
     private let cellID = "cellID"
     private var dataSource: UICollectionViewDiffableDataSource<Section, User>!
     private let searchBar = UISearchBar(frame: .zero)
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
+    private lazy var collectionView: UICollectionView = {
+        let layout = self.configureLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
         cv.backgroundColor = UIColor.white
@@ -37,7 +36,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureLayout()
+        configureUI()
         configureNavigationBar()
         configureSearchBar()
         configureDataSource()
@@ -45,7 +44,7 @@ class ViewController: UIViewController {
     }
     
     // MARK:- Helper Methods
-    private func configureLayout() {
+    private func configureUI() {
         view.backgroundColor = UIColor.white
         collectionView.register(LabelCell.self, forCellWithReuseIdentifier: cellID)
         
@@ -74,6 +73,18 @@ class ViewController: UIViewController {
         searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         searchBar.heightAnchor.constraint(equalToConstant: 44).isActive = true
+    }
+    
+    private func configureLayout() -> UICollectionViewLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
     }
     
     private func configureDataSource() {
@@ -118,7 +129,12 @@ extension ViewController {
 // MARK:- Search Bar Delegate Methods
 extension ViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print(searchText)
+        if searchText.isEmpty {
+            self.createSnapshot(from: users)
+            return
+        }
+        let filteredUsers = users.filter({$0.name.lowercased().contains(searchText.lowercased())})
+        self.createSnapshot(from: filteredUsers)
     }
 }
 
